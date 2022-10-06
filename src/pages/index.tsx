@@ -1,76 +1,102 @@
-import { Button, Flex, Stack } from '@chakra-ui/react'
-import { Input } from '../components/Form/Input'
-import { SubmitHandler, useForm } from 'react-hook-form'
-import * as yup from 'yup'
-import { yupResolver } from '@hookform/resolvers/yup'
+import { Box, Flex, SimpleGrid, Text } from "@chakra-ui/react";
+import { Header } from "../components/Header";
+import { Sidebar } from "../components/Sidebar";
 
-type SignInFormData = {
-  email: string;
-  password: string;
-}
+import dynamic from "next/dynamic";
+import { theme } from "../styles/theme";
 
-
-const signInFormSchema = yup.object().shape({
-  email: yup.string().required('E-mail obrigatório').email('E-mail inválido'),
-  password: yup.string().required('Senha obrigatório')
+const Chart = dynamic(() => import('react-apexcharts'), {
+    ssr: false,
 })
 
-export default function SignIn() {
+export default function Dashboard() {
 
-  const { register, handleSubmit, formState } = useForm({
-    resolver: yupResolver(signInFormSchema)
-  })
+    const options: any = {
+        chart: {
+            toolbar: {
+                show: false
+            },
+            zoom: {
+                enabled: false,
+            },
+            forceColor: theme.colors.gray[500]
+        },
+        grid: {
+            show: false,
+        },
+        dataLabels: {
+            enabled: false,
+        },
+        tooltip: {
+            enabled: false
+        },
+        xaxis: {
+            type: 'datetime',
+            axisBorder: {
+                color: theme.colors.gray[600]
+            },
+            axisTicks: {
+                color: theme.colors.gray[600]
+            },
+            categories: [
+                '2021-03-18T00:00:00.000Z',
+                '2021-03-19T00:00:00.000Z',
+                '2021-03-20T00:00:00.000Z',
+                '2021-03-21T00:00:00.000Z',
+                '2021-03-22T00:00:00.000Z',
+                '2021-03-23T00:00:00.000Z',
+                '2021-03-24T00:00:00.000Z',
+            ],
+        },
+        fill: {
+            opacity: 0.3,
+            type: 'gradient',
+            gradient: {
+                shade: 'dark',
+                opacityFrom: 0.7,
+                opacityTo: 0.7
+            }
+
+        }
+    };
 
 
-  const { errors } = formState
+    const series = [
+        { name: 'series1', data: [31, 120, 10, 20, 31, 18, 109] }
+    ]
 
-  const handleSignIn: SubmitHandler<SignInFormData> = (values) => {
-    console.log(values)
-  }
+    return (
+        <Flex direction="column" h="100vh">
+            <Header />
+            <Flex w="100%" my="6" maxWidth={1480} mx="auto" px="6">
+                <Sidebar />
 
-  return (
-    <Flex
-      w="100vw"
-      h="100vh"
-      align="center"
-      justify="center"
-    >
-      <Flex
-        as="form"
-        w="100%"
-        maxW={360}
-        bg="gray.800"
-        p='8'
-        borderRadius={8}
-        flexDir="column"
-        onSubmit={handleSubmit(handleSignIn)}
-      >
-        <Stack spacing={4}>
-          <Input
-            name='email'
-            type="email"
-            label="E-mail"
-            error={errors.email}
-            {...register('email')}
-          />
-          <Input
-            name='password'
-            type="password"
-            label="Senha"
-            error={errors.password}
-            {...register('password')}
-          />
-        </Stack>
-        <Button
-          type="submit"
-          mt="6"
-          colorScheme="pink"
-          size="lg"
-          isLoading={formState.isSubmitting}
-        >
-          Entrar
-        </Button>
-      </Flex>
-    </Flex>
-  )
+                <SimpleGrid
+                    flex="1"
+                    gap="4"
+                    minChildWidth="320px"
+                    align-items="flex-start"
+                >
+                    <Box
+                        p="8"
+                        bg="gray.800"
+                        borderRadius={8}
+                        pb="4"
+                    >
+                        <Text fontSize="lg" mb="4">Inscritos da semana</Text>
+                        <Chart options={options} series={series} type="area" height={160} />
+                    </Box>
+                    <Box
+                        p="8"
+                        bg="gray.800"
+                        borderRadius={8}
+                    >
+                        <Text fontSize="lg" mb="4">Taxa de abertura</Text>
+                        <Chart options={options} series={series} type="area" height={160} />
+                    </Box>
+
+                </SimpleGrid>
+            </Flex>
+        </Flex>
+    )
 }
